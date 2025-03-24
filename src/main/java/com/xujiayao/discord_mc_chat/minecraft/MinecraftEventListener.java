@@ -302,7 +302,7 @@ public class MinecraftEventListener {
 
 				EmbedBuilder deathEmbed = new EmbedBuilder()
 						.setColor(0x000000)
-						.setAuthor(player.getDisplayName().getString() + " " + death, avatarUrl, avatarUrl);
+						.setAuthor(death, null, avatarUrl);
 
 				CHANNEL.sendMessageEmbeds(deathEmbed.build()).queue();
 
