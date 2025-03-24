@@ -5,12 +5,15 @@ import com.google.gson.JsonObject;
 import com.xujiayao.discord_mc_chat.utils.MarkdownParser;
 import com.xujiayao.discord_mc_chat.utils.Translations;
 import com.xujiayao.discord_mc_chat.utils.Utils;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import net.fellbaum.jemoji.EmojiManager;
 import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -252,13 +255,34 @@ public class MinecraftEventListener {
 
 				String title = Translations.translate("advancements." + advancementHolder.id().getPath().replace("/", ".") + ".title");
 				String description = Translations.translate("advancements." + advancementHolder.id().getPath().replace("/", ".") + ".description");
+				String avatarUrl = "https://mc-heads.net/avatar/" + player.getName().getString() + ".png";
+
+				String embedName = player.getDisplayName().getString() + " has made the advancement " + title;
+
+				int color = 0x00FF00;
+				if (display.getType() == AdvancementType.CHALLENGE) {
+					color = 0x800080;
+				}
+
 
 				message = message
 						.replace("%playerName%", MarkdownSanitizer.escape(Objects.requireNonNull(player.getDisplayName()).getString()))
 						.replace("%advancement%", title.contains("TranslateError") ? display.getTitle().getString() : title)
 						.replace("%description%", description.contains("TranslateError") ? display.getDescription().getString() : description);
 
-				CHANNEL.sendMessage(message).queue();
+				EmbedBuilder embedBuilder = new EmbedBuilder()
+						.setColor(color)
+						.setAuthor(
+								embedName,
+								null,
+								avatarUrl
+						)
+						.setDescription(description);
+
+				MessageEmbed embed = embedBuilder.build();
+				CHANNEL.sendMessageEmbeds(embed).queue();
+
+				// there's no sendMessageEmbeds in multi server.
 				if (CONFIG.multiServer.enable) {
 					MULTI_SERVER.sendMessage(false, false, false, null, message);
 				}
@@ -273,10 +297,16 @@ public class MinecraftEventListener {
 				//$$ TranslatableComponent deathMessage = (TranslatableComponent) player.getCombatTracker().getDeathMessage();
 				//#endif
 				String key = deathMessage.getKey();
+				String death = Translations.translate(key, deathMessage.getArgs());
+				String avatarUrl = "https://mc-heads.net/avatar/" + player.getName().getString() + ".png";
 
-				CHANNEL.sendMessage(Translations.translateMessage("message.deathMessage")
-						.replace("%deathMessage%", MarkdownSanitizer.escape(Translations.translate(key, deathMessage.getArgs())))
-						.replace("%playerName%", MarkdownSanitizer.escape(Objects.requireNonNull(player.getDisplayName()).getString()))).queue();
+				EmbedBuilder deathEmbed = new EmbedBuilder()
+						.setColor(0x000000)
+						.setAuthor(player.getDisplayName().getString() + " " + death, avatarUrl, avatarUrl);
+
+				CHANNEL.sendMessageEmbeds(deathEmbed.build()).queue();
+
+				// there's no sendMessageEmbeds in multi server.
 				if (CONFIG.multiServer.enable) {
 					MULTI_SERVER.sendMessage(false, false, false, null, Translations.translateMessage("message.deathMessage")
 							.replace("%deathMessage%", MarkdownSanitizer.escape(Translations.translate(key, deathMessage.getArgs())))
@@ -289,8 +319,17 @@ public class MinecraftEventListener {
 			Utils.setBotPresence();
 
 			if (CONFIG.generic.announcePlayerJoinLeave) {
-				CHANNEL.sendMessage(Translations.translateMessage("message.joinServer")
-						.replace("%playerName%", MarkdownSanitizer.escape(Objects.requireNonNull(player.getDisplayName()).getString()))).queue();
+				String joinMessage = Translations.translateMessage("message.joinServer")
+						.replace("%playerName%", MarkdownSanitizer.escape(Objects.requireNonNull(player.getDisplayName()).getString()));
+				String avatarUrl = "https://mc-heads.net/avatar/" + player.getName().getString() + ".png";
+
+				EmbedBuilder joinEmbed = new EmbedBuilder()
+						.setColor(0x00FF00) // Green color for joining
+						.setAuthor(joinMessage, null, avatarUrl);
+
+				CHANNEL.sendMessageEmbeds(joinEmbed.build()).queue();
+
+				// there's no sendMessageEmbeds in multi server.
 				if (CONFIG.multiServer.enable) {
 					MULTI_SERVER.sendMessage(false, false, false, null, Translations.translateMessage("message.joinServer")
 							.replace("%playerName%", MarkdownSanitizer.escape(player.getDisplayName().getString())));
@@ -302,8 +341,17 @@ public class MinecraftEventListener {
 			Utils.setBotPresence();
 
 			if (CONFIG.generic.announcePlayerJoinLeave) {
-				CHANNEL.sendMessage(Translations.translateMessage("message.leftServer")
-						.replace("%playerName%", MarkdownSanitizer.escape(Objects.requireNonNull(player.getDisplayName()).getString()))).queue();
+				String leaveMessage = Translations.translateMessage("message.leftServer")
+						.replace("%playerName%", MarkdownSanitizer.escape(Objects.requireNonNull(player.getDisplayName()).getString()));
+				String avatarUrl = "https://mc-heads.net/avatar/" + player.getName().getString() + ".png";
+
+				EmbedBuilder leaveEmbed = new EmbedBuilder()
+						.setColor(0xFF0000) // Red color for leaving
+						.setAuthor(leaveMessage, avatarUrl, avatarUrl);
+
+				CHANNEL.sendMessageEmbeds(leaveEmbed.build()).queue();
+
+				// there's no sendMessageEmbeds in multi server.
 				if (CONFIG.multiServer.enable) {
 					MULTI_SERVER.sendMessage(false, false, false, null, Translations.translateMessage("message.leftServer")
 							.replace("%playerName%", MarkdownSanitizer.escape(player.getDisplayName().getString())));
