@@ -68,8 +68,8 @@
   "message.serverStarted": "**Server started!**",
   "message.serverStopped": "**Server stopped!**",
 
-  "message.joinServer": "**%playerName% joined the game**",
-  "message.leftServer": "**%playerName% left the game**",
+  "message.joinServer": "%playerName% joined the server",
+  "message.leftServer": "%playerName% left the server",
 
   "message.deathMessage": "**%deathMessage%**",
 
