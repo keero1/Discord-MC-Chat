@@ -256,14 +256,20 @@ public class MinecraftEventListener {
 				String title = Translations.translate("advancements." + advancementHolder.id().getPath().replace("/", ".") + ".title");
 				String description = Translations.translate("advancements." + advancementHolder.id().getPath().replace("/", ".") + ".description");
 				String avatarUrl = "https://mc-heads.net/avatar/" + player.getName().getString() + ".png";
-
-				String embedName = player.getDisplayName().getString() + " has made the advancement " + title;
+				String playerName = MarkdownSanitizer.escape(Objects.requireNonNull(player.getDisplayName()).getString());
 
 				int color = 0x00FF00;
 				if (display.getType() == AdvancementType.CHALLENGE) {
 					color = 0x800080;
 				}
 
+				if(title.contains("TranslateError")) {
+					display.getTitle().getString();
+				}
+
+				if(description.contains("TranslateError")) {
+					display.getDescription().getString();
+				}
 
 				message = message
 						.replace("%playerName%", MarkdownSanitizer.escape(Objects.requireNonNull(player.getDisplayName()).getString()))
@@ -273,7 +279,7 @@ public class MinecraftEventListener {
 				EmbedBuilder embedBuilder = new EmbedBuilder()
 						.setColor(color)
 						.setAuthor(
-								embedName,
+								playerName + " has made the advancement " + title,
 								null,
 								avatarUrl
 						)
@@ -297,12 +303,15 @@ public class MinecraftEventListener {
 				//$$ TranslatableComponent deathMessage = (TranslatableComponent) player.getCombatTracker().getDeathMessage();
 				//#endif
 				String key = deathMessage.getKey();
-				String death = Translations.translate(key, deathMessage.getArgs());
 				String avatarUrl = "https://mc-heads.net/avatar/" + player.getName().getString() + ".png";
 
+				String message = Translations.translateMessage("message.deathMessage")
+						.replace("%deathMessage%", MarkdownSanitizer.escape(Translations.translate(key, deathMessage.getArgs())))
+						.replace("%playerName%", MarkdownSanitizer.escape(Objects.requireNonNull(player.getDisplayName()).getString()));
+
 				EmbedBuilder deathEmbed = new EmbedBuilder()
-						.setColor(0x000000)
-						.setAuthor(death, null, avatarUrl);
+						.setColor(0x000000) // Black color for dying
+						.setAuthor(message, null, avatarUrl);
 
 				CHANNEL.sendMessageEmbeds(deathEmbed.build()).queue();
 
@@ -347,7 +356,7 @@ public class MinecraftEventListener {
 
 				EmbedBuilder leaveEmbed = new EmbedBuilder()
 						.setColor(0xFF0000) // Red color for leaving
-						.setAuthor(leaveMessage, avatarUrl, avatarUrl);
+						.setAuthor(leaveMessage, null, avatarUrl);
 
 				CHANNEL.sendMessageEmbeds(leaveEmbed.build()).queue();
 
