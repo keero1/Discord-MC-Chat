@@ -264,11 +264,11 @@ public class MinecraftEventListener {
 				}
 
 				if(title.contains("TranslateError")) {
-					display.getTitle().getString();
+					title = display.getTitle().getString();
 				}
 
 				if(description.contains("TranslateError")) {
-					display.getDescription().getString();
+					description = display.getDescription().getString();
 				}
 
 				message = message
