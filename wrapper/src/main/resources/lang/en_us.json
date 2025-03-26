@@ -71,7 +71,7 @@
   "message.joinServer": "%playerName% joined the server",
   "message.leftServer": "%playerName% left the server",
 
-  "message.deathMessage": "**%deathMessage%**",
+  "message.deathMessage": "%deathMessage%",
 
   "message.advancementTask": "**%playerName% has made the advancement [%advancement%]**\n*%description%*",
   "message.advancementChallenge": "**%playerName% has completed the challenge [%advancement%]**\n*%description%*",
